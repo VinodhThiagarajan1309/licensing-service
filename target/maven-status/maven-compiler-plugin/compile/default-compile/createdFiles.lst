@@ -1,7 +1,0 @@
-com/vinapex/licensingservice/model/License$LicenseBuilder.class
-com/vinapex/licensingservice/model/License.class
-com/vinapex/licensingservice/ApexLicensingServiceApplication.class
-com/vinapex/licensingservice/repository/LicenseRepository.class
-com/vinapex/licensingservice/services/LicenseService.class
-com/vinapex/licensingservice/config/ServiceConfig.class
-com/vinapex/licensingservice/controllers/LicenseController.class
