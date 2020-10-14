@@ -1,5 +1,7 @@
 package com.vinapex.licensingservice.services;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.vinapex.licensingservice.clients.OrganizationDiscoveryClient;
 import com.vinapex.licensingservice.clients.OrganizationFeignClient;
 import com.vinapex.licensingservice.clients.OrganizationRestTemplateClient;
@@ -7,14 +9,22 @@ import com.vinapex.licensingservice.config.ServiceConfig;
 import com.vinapex.licensingservice.model.License;
 import com.vinapex.licensingservice.model.Organization;
 import com.vinapex.licensingservice.repository.LicenseRepository;
+import com.vinapex.licensingservice.utils.UserContextHolder;
+import org.apache.tomcat.jni.Time;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
 public class LicenseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LicenseService.class);
 
     @Autowired
     LicenseRepository licenseRepository;
@@ -37,8 +47,65 @@ public class LicenseService {
         return license;
     }
 
+    private void randomlyRunLong() {
+        Random rand = new Random();
+        int randomNum = rand.nextInt((3 - 1) + 1) + 1;
+
+        if(randomNum == 3) {
+            sleep();
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(11000);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+    }
+    @HystrixCommand(fallbackMethod = "buildFallBackLicenseList",
+    threadPoolKey = "licenseByOrgThreadPool",
+    threadPoolProperties = {
+            @HystrixProperty(name="coreSize",value = "30"),
+            @HystrixProperty(name="maxQueueSize",value = "10")
+    },
+    commandProperties = {
+            @HystrixProperty(
+                    name = "circuitBreaker.requestVolumeThreshold",
+                    value = "10"
+            ),
+            @HystrixProperty(
+                    name = "circuitBreaker.errorThresholdPercentage",
+                    value = "75"
+            ),
+            @HystrixProperty(
+                    name = "circuitBreaker.sleepWindowInMilliseconds",
+                    value = "7000"
+            ),
+            @HystrixProperty(
+                    name = "metrics.rollingStats.timeInMilliseconds",
+                    value = "15000"
+            ),
+            @HystrixProperty(
+                    name = "metrics.rollingStats.numBuckets",
+                    value = "5"
+            )
+    })
     public List<License> getLicensesByOrg(String organizationId) {
+        logger.info("LicenseService.getLicensesByOrg  Correlation id: {}",
+                UserContextHolder.getContext().getCorrelationId());
+        randomlyRunLong();
         return licenseRepository.findByOrganizationId(organizationId);
+    }
+
+    private List<License> buildFallBackLicenseList(String organizationId) {
+        List<License> fallbackList = new ArrayList<>();
+        License license = new License()
+                .withId("0000000-00-00000")
+                .withOrganizationId(organizationId)
+                .withProductName("Sorry no product information available.");
+        fallbackList.add(license);
+        return fallbackList;
     }
 
     public void saveLicense(License license) {

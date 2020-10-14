@@ -4,6 +4,9 @@ package com.vinapex.licensingservice.controllers;
 import com.vinapex.licensingservice.config.ServiceConfig;
 import com.vinapex.licensingservice.model.License;
 import com.vinapex.licensingservice.services.LicenseService;
+import com.vinapex.licensingservice.utils.UserContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +22,14 @@ import java.util.List;
 @RequestMapping(value = "/v1/organizations/{organizationId}/licenses")
 public class LicenseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(LicenseController.class);
+
     @Autowired
     private LicenseService licenseService;
 
     @RequestMapping(value="/",method = RequestMethod.GET)
     public List<License> getLicenses(@PathVariable("organizationId") String organizationId) {
-
+        logger.info("LicenseServiceController Correlation id: {}", UserContextHolder.getContext().getCorrelationId());
         return licenseService.getLicensesByOrg(organizationId);
     }
 
