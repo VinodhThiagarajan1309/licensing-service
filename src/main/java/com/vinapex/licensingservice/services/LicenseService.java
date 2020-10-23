@@ -41,11 +41,25 @@ public class LicenseService {
     @Autowired
     ServiceConfig config;
 
-    public License getLicense(String organizationId,String licenseId) {
-        License license =  licenseRepository.findByOrganizationIdAndLicenseId(organizationId,licenseId);
-        license.setComment(config.getExampleProperty());
-        return license;
+    @HystrixCommand
+    public License getLicense(String organizationId,String licenseId) throws InterruptedException {
+        License license = licenseRepository.findByOrganizationIdAndLicenseId(organizationId, licenseId);
+
+        Organization org = getOrganization(organizationId);
+
+        return license
+                .withOrganizationName( org.getName())
+                .withContactName( org.getContactName())
+                .withContactEmail( org.getContactEmail() )
+                .withContactPhone( org.getContactPhone() )
+                .withComment(config.getExampleProperty());
     }
+
+    @HystrixCommand
+    private Organization getOrganization(String organizationId) {
+        return organizationRestClient.getOrganization(organizationId);
+    }
+
 
     private void randomlyRunLong() {
         Random rand = new Random();

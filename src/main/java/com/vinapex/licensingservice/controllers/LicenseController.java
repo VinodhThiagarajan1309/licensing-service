@@ -35,7 +35,7 @@ public class LicenseController {
 
     @RequestMapping(value="/{licenseId}",method = RequestMethod.GET)
     public License getLicenses( @PathVariable("organizationId") String organizationId,
-                                @PathVariable("licenseId") String licenseId) {
+                                @PathVariable("licenseId") String licenseId)  throws InterruptedException {
 
         return licenseService.getLicense(organizationId,licenseId);
     }
