@@ -52,7 +52,7 @@ public class LicenseService {
                 .withContactName( org.getContactName())
                 .withContactEmail( org.getContactEmail() )
                 .withContactPhone( org.getContactPhone() )
-                .withComment(config.getExampleProperty());
+                .withComment("All is well again");
     }
 
     @HystrixCommand
@@ -145,7 +145,7 @@ public class LicenseService {
                 .withContactName( org.getContactName())
                 .withContactEmail( org.getContactEmail() )
                 .withContactPhone( org.getContactPhone() )
-                .withComment(config.getExampleProperty());
+                .withComment("All is Well !!");
     }
 
     private Organization retrieveOrgInfo(String organizationId, String clientType){

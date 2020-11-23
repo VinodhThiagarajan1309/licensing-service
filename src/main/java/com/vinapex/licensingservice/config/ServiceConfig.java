@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 @Getter
 public class ServiceConfig {
 
-    @Value("${example.property}")
-    private String exampleProperty;
+    @Value("${redis.server}")
+    private String redisServer="";
+
+    @Value("${redis.port}")
+    private String redisPort="";
 
 }

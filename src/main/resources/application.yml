@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 10080
 eureka:
   instance:
     preferIpAddress: true
@@ -15,3 +15,21 @@ security:
       user-info-uri: http://localhost:8901/auth/user
     client:
       grant-type: client_credentials
+
+logging:
+  level:
+    com.netflix: WARN
+    org.springframework.web: WARN
+    com.vinapex: DEBUG
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        inboundOrgChanges:
+          destination:  orgChangeTopic
+          content-type: application/json
+          group: licensingGroup
+        binder:
+          zkNodes: localhost:2181
+          brokers: localhost:9092
